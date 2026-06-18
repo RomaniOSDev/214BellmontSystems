@@ -7,7 +7,7 @@ struct ContentView: View {
     var body: some View {
         Group {
             if store.hasSeenOnboarding {
-                MainTabView()
+                FlowHubView()
             } else {
                 OnboardingView()
             }

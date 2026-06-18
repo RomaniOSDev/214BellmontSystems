@@ -58,6 +58,7 @@ struct TemplateCell: View {
 
                 HStack(spacing: 8) {
                     AppBadge(text: template.category, style: .neutral)
+                    EnergyBadge(level: template.energyLevel, compact: true)
                     HStack(spacing: 3) {
                         Circle()
                             .fill(priorityColor(template.priority))

@@ -10,6 +10,7 @@ struct AddTaskView: View {
     @State private var title = ""
     @State private var category: String
     @State private var priority: TaskPriority = .medium
+    @State private var energyLevel: EnergyLevel = .steady
     @State private var hasDueDate = false
     @State private var dueDate = Date()
     @State private var errorMessage = ""
@@ -26,6 +27,7 @@ struct AddTaskView: View {
         _category = State(initialValue: existingTask?.category ?? defaultCategory)
         _title = State(initialValue: existingTask?.title ?? "")
         _priority = State(initialValue: existingTask?.priority ?? .medium)
+        _energyLevel = State(initialValue: existingTask?.energyLevel ?? .steady)
         _hasDueDate = State(initialValue: existingTask?.dueDate != nil)
         _dueDate = State(initialValue: existingTask?.dueDate ?? Date())
     }
@@ -58,6 +60,17 @@ struct AddTaskView: View {
                                 Text(p.displayName).tag(p)
                             }
                         }
+                    }
+                    .listRowBackground(Color("AppSurface"))
+
+                    Section {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Energy Level")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(Color("AppTextPrimary"))
+                            EnergyLevelPicker(selection: $energyLevel)
+                        }
+                        .padding(.vertical, 4)
                     }
                     .listRowBackground(Color("AppSurface"))
 
@@ -114,6 +127,7 @@ struct AddTaskView: View {
             existing.title = trimmed
             existing.category = category
             existing.priority = priority
+            existing.energyLevel = energyLevel
             existing.dueDate = hasDueDate ? dueDate : nil
             onSave(existing)
         } else {
@@ -121,6 +135,7 @@ struct AddTaskView: View {
                 title: trimmed,
                 category: category,
                 priority: priority,
+                energyLevel: energyLevel,
                 dueDate: hasDueDate ? dueDate : nil
             )
             onSave(task)

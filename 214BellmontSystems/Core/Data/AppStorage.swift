@@ -27,6 +27,9 @@ final class AppDataStore: ObservableObject {
         static let focusSessionHistory = "focusSessionHistory"
         static let selectedFocusTaskId = "selectedFocusTaskId"
         static let templatesSeeded = "templatesSeeded"
+        static let weeklyPlan = "weeklyPlan"
+        static let flowBlocks = "flowBlocks"
+        static let nicheTemplatesSeeded = "nicheTemplatesSeeded"
     }
 
     private let defaults: UserDefaults
@@ -136,6 +139,14 @@ final class AppDataStore: ObservableObject {
         }
     }
 
+    @Published var weeklyPlan: WeeklyPlan {
+        didSet { save(weeklyPlan, forKey: Keys.weeklyPlan) }
+    }
+
+    @Published var flowBlocks: [FlowBlock] {
+        didSet { save(flowBlocks, forKey: Keys.flowBlocks) }
+    }
+
     static let taskCategories = ["General", "Work", "Personal", "Health", "Learning"]
 
     init(defaults: UserDefaults = .standard) {
@@ -168,7 +179,11 @@ final class AppDataStore: ObservableObject {
         } else {
             selectedFocusTaskId = nil
         }
+        weeklyPlan = Self.load(WeeklyPlan.self, from: defaults, key: Keys.weeklyPlan)
+            ?? WeeklyPlan()
+        flowBlocks = Self.load([FlowBlock].self, from: defaults, key: Keys.flowBlocks) ?? []
         seedTemplatesIfNeeded()
+        migrateNicheTemplatesIfNeeded()
         migrateHabitDatesIfNeeded()
         refreshHabitsForToday()
     }
@@ -207,7 +222,8 @@ final class AppDataStore: ObservableObject {
         let task = TaskItem(
             title: template.title,
             category: template.category,
-            priority: template.priority
+            priority: template.priority,
+            energyLevel: template.energyLevel
         )
         addTask(task)
     }
@@ -301,6 +317,87 @@ final class AppDataStore: ObservableObject {
             taskTemplates = TaskTemplate.defaults
         }
         defaults.set(true, forKey: Keys.templatesSeeded)
+    }
+
+    private func migrateNicheTemplatesIfNeeded() {
+        guard !defaults.bool(forKey: Keys.nicheTemplatesSeeded) else { return }
+        taskTemplates = TaskTemplate.defaults
+        defaults.set(true, forKey: Keys.nicheTemplatesSeeded)
+    }
+
+    // MARK: - Weekly Flow Plan
+
+    func refreshWeeklyPlanIfNeeded() {
+        if !weeklyPlan.isCurrentWeek {
+            weeklyPlan = WeeklyPlan(
+                intention: weeklyPlan.intention,
+                priorityOutcomes: weeklyPlan.priorityOutcomes,
+                plannedFocusMinutes: weeklyPlan.plannedFocusMinutes
+            )
+        }
+    }
+
+    func updateWeeklyPlan(_ plan: WeeklyPlan) {
+        weeklyPlan = plan
+        recordActivity()
+    }
+
+    func toggleWeeklyPriority(taskId: UUID) {
+        guard let index = tasks.firstIndex(where: { $0.id == taskId }) else { return }
+        let priorityCount = tasks.filter(\.isWeeklyPriority).count
+        if !tasks[index].isWeeklyPriority && priorityCount >= 3 { return }
+        tasks[index].isWeeklyPriority.toggle()
+    }
+
+    var weeklyPriorityTasks: [TaskItem] {
+        tasks.filter { $0.isWeeklyPriority && !$0.completed }
+    }
+
+    // MARK: - Flow Blocks
+
+    var todaysFlowBlocks: [FlowBlock] {
+        let today = Calendar.current.startOfDay(for: Date())
+        return flowBlocks
+            .filter { Calendar.current.isDate($0.scheduledDay, inSameDayAs: today) }
+            .sorted { lhs, rhs in
+                lhs.startHour == rhs.startHour
+                    ? lhs.startMinute < rhs.startMinute
+                    : lhs.startHour < rhs.startHour
+            }
+    }
+
+    func addFlowBlock(_ block: FlowBlock) {
+        flowBlocks.append(block)
+        recordActivity()
+    }
+
+    func applyGuidedRoutine(_ routine: GuidedRoutine, for day: Date = Date()) {
+        let blocks = routine.makeFlowBlocks(for: day)
+        flowBlocks.append(contentsOf: blocks)
+        recordActivity()
+    }
+
+    func toggleFlowBlockCompletion(id: UUID) {
+        guard let index = flowBlocks.firstIndex(where: { $0.id == id }) else { return }
+        flowBlocks[index].isCompleted.toggle()
+        if flowBlocks[index].isCompleted {
+            recordActivity()
+        }
+    }
+
+    func deleteFlowBlock(id: UUID) {
+        flowBlocks.removeAll { $0.id == id }
+    }
+
+    var momentumBreakdown: MomentumBreakdown {
+        MomentumCalculator.breakdown(for: self)
+    }
+
+    var todaysFlowProgress: Double {
+        let blocks = todaysFlowBlocks
+        guard !blocks.isEmpty else { return 0 }
+        let done = blocks.filter(\.isCompleted).count
+        return Double(done) / Double(blocks.count)
     }
 
     // MARK: - Habits
@@ -522,8 +619,12 @@ final class AppDataStore: ObservableObject {
         taskTemplates = []
         focusSessionHistory = []
         selectedFocusTaskId = nil
+        weeklyPlan = WeeklyPlan()
+        flowBlocks = []
         defaults.set(false, forKey: Keys.templatesSeeded)
+        defaults.set(false, forKey: Keys.nicheTemplatesSeeded)
         seedTemplatesIfNeeded()
+        migrateNicheTemplatesIfNeeded()
     }
 
     private func save<T: Encodable>(_ value: T, forKey key: String) {

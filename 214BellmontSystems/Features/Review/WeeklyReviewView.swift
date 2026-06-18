@@ -3,19 +3,32 @@ import SwiftUI
 
 struct WeeklyReviewView: View {
     @EnvironmentObject private var store: AppDataStore
+    var embedded = false
 
     private var review: WeeklyReviewData { store.weeklyReview() }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                heroCard
-                metricsGrid
-                focusChart
-                insightsCard
+        Group {
+            if embedded {
+                reviewContent
+            } else {
+                ScrollView {
+                    reviewContent
+                }
             }
-            .padding(.vertical, 16)
         }
+    }
+
+    private var reviewContent: some View {
+        VStack(spacing: 20) {
+            if !embedded {
+                heroCard
+            }
+            metricsGrid
+            focusChart
+            insightsCard
+        }
+        .padding(.vertical, embedded ? 0 : 16)
     }
 
     private var heroCard: some View {

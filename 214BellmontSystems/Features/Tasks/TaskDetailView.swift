@@ -11,6 +11,18 @@ struct TaskDetailView: View {
         store.tasks.first { $0.id == taskId }
     }
 
+    private var weeklyPriorityBinding: Binding<Bool> {
+        Binding(
+            get: { task?.isWeeklyPriority ?? false },
+            set: { newValue in
+                let current = task?.isWeeklyPriority ?? false
+                if newValue != current {
+                    store.toggleWeeklyPriority(taskId: taskId)
+                }
+            }
+        )
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -50,6 +62,7 @@ struct TaskDetailView: View {
                         HStack(spacing: 6) {
                             AppBadge(text: task.category, style: .neutral)
                             AppBadge(text: task.priority.displayName, style: .accent)
+                            EnergyBadge(level: task.energyLevel, compact: true)
                         }
                     }
                     Spacer()
@@ -57,8 +70,20 @@ struct TaskDetailView: View {
 
                 Divider().background(Color("AppTextPrimary").opacity(0.1))
 
+                Toggle(isOn: weeklyPriorityBinding) {
+                    HStack {
+                        Image(systemName: "star.fill")
+                            .foregroundStyle(Color("AppPrimary"))
+                        Text("Weekly Priority Outcome")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(Color("AppTextPrimary"))
+                    }
+                }
+                .tint(Color("AppPrimary"))
+
                 detailRow(icon: "folder", label: "Category", value: task.category)
                 detailRow(icon: "flag.fill", label: "Priority", value: task.priority.displayName)
+                detailRow(icon: task.energyLevel.icon, label: "Energy", value: task.energyLevel.displayName)
 
                 if let due = task.dueDate {
                     detailRow(icon: "calendar", label: "Due", value: due.formatted(date: .abbreviated, time: .omitted))

@@ -17,30 +17,30 @@ struct OnboardingView: View {
     private let pages: [OnboardingPage] = [
         OnboardingPage(
             id: 0,
-            headline: "Organize Tasks",
-            description: "Keep track of your tasks effortlessly to stay on top of your workload.",
-            icon: "checklist",
-            badge: "Tasks",
+            headline: "Plan Your Week",
+            description: "Set a weekly intention, map energy levels, and schedule Flow Blocks for solo knowledge work.",
+            icon: "calendar.badge.clock",
+            badge: "Plan",
             imageName: "home_tasks_widget",
-            highlights: ["Priorities", "Due Dates", "Templates"]
+            highlights: ["Weekly Intention", "Energy Map", "Flow Blocks"]
         ),
         OnboardingPage(
             id: 1,
-            headline: "Initiate Focus Sessions",
-            description: "Start a focus timer with just a tap to minimize distractions.",
-            icon: "timer",
-            badge: "Focus",
+            headline: "Execute with Focus",
+            description: "Run guided routines, complete time blocks, and protect deep work with the focus timer.",
+            icon: "play.circle.fill",
+            badge: "Execute",
             imageName: "home_focus_widget",
-            highlights: ["Pomodoro", "Sessions", "Notes"]
+            highlights: ["Guided Routines", "Flow Blocks", "Deep Work"]
         ),
         OnboardingPage(
             id: 2,
-            headline: "Build Habits",
-            description: "Consistently log and track habits to reinforce positive behavior change.",
-            icon: "leaf.fill",
-            badge: "Habits",
+            headline: "Review Your Momentum",
+            description: "Track your Momentum Score, reflect on the week, and start the next planning cycle.",
+            icon: "chart.line.uptrend.xyaxis",
+            badge: "Review",
             imageName: "home_habits_widget",
-            highlights: ["Streaks", "Calendar", "Daily Log"]
+            highlights: ["Momentum Score", "Weekly Review", "Next Plan"]
         )
     ]
 

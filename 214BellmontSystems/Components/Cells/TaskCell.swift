@@ -104,6 +104,11 @@ struct TaskCell: View {
     private var badgesRow: some View {
         HStack(spacing: 6) {
             AppBadge(text: task.category, style: .neutral)
+            EnergyBadge(level: task.energyLevel, compact: true)
+
+            if task.isWeeklyPriority {
+                AppBadge(text: "Week", style: .primary)
+            }
 
             HStack(spacing: 3) {
                 Circle().fill(priorityColor).frame(width: 6, height: 6)

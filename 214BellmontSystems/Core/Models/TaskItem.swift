@@ -30,6 +30,8 @@ struct TaskItem: Codable, Identifiable, Equatable {
     var completed: Bool
     var category: String
     var priority: TaskPriority
+    var energyLevel: EnergyLevel
+    var isWeeklyPriority: Bool
     var dueDate: Date?
     var subtasks: [Subtask]
     var completedAt: Date?
@@ -41,6 +43,8 @@ struct TaskItem: Codable, Identifiable, Equatable {
         completed: Bool = false,
         category: String = "General",
         priority: TaskPriority = .medium,
+        energyLevel: EnergyLevel = .steady,
+        isWeeklyPriority: Bool = false,
         dueDate: Date? = nil,
         subtasks: [Subtask] = [],
         completedAt: Date? = nil,
@@ -51,6 +55,8 @@ struct TaskItem: Codable, Identifiable, Equatable {
         self.completed = completed
         self.category = category
         self.priority = priority
+        self.energyLevel = energyLevel
+        self.isWeeklyPriority = isWeeklyPriority
         self.dueDate = dueDate
         self.subtasks = subtasks
         self.completedAt = completedAt
@@ -75,6 +81,7 @@ struct TaskItem: Codable, Identifiable, Equatable {
 
     enum CodingKeys: String, CodingKey {
         case id, title, completed, category, priority
+        case energyLevel, isWeeklyPriority
         case dueDate, subtasks, completedAt, createdAt
     }
 
@@ -85,6 +92,8 @@ struct TaskItem: Codable, Identifiable, Equatable {
         completed = try container.decode(Bool.self, forKey: .completed)
         category = try container.decode(String.self, forKey: .category)
         priority = try container.decode(TaskPriority.self, forKey: .priority)
+        energyLevel = try container.decodeIfPresent(EnergyLevel.self, forKey: .energyLevel) ?? .steady
+        isWeeklyPriority = try container.decodeIfPresent(Bool.self, forKey: .isWeeklyPriority) ?? false
         dueDate = try container.decodeIfPresent(Date.self, forKey: .dueDate)
         subtasks = try container.decodeIfPresent([Subtask].self, forKey: .subtasks) ?? []
         completedAt = try container.decodeIfPresent(Date.self, forKey: .completedAt)
