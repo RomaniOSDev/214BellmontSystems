@@ -21,9 +21,17 @@ struct PlanPhaseView: View {
 
                 ScrollView {
                     VStack(spacing: 20) {
+                        MomentumHeroBanner(breakdown: store.momentumBreakdown)
+                            .padding(.horizontal, 16)
                         flowHeader
+                        EnergyDayMapCard()
+                            .padding(.horizontal, 16)
+                        OneOutcomeCard()
+                            .padding(.horizontal, 16)
                         weeklyIntentionCard
                         priorityOutcomesCard
+                        WeeklyCommitmentCard()
+                            .padding(.horizontal, 16)
                         guidedRoutinesSection
                         flowBlocksPreview
                     }
@@ -31,7 +39,7 @@ struct PlanPhaseView: View {
                     .padding(.bottom, 16)
                 }
             }
-            .navigationTitle("Plan Your Week")
+            .navigationTitle("Plan")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -45,7 +53,7 @@ struct PlanPhaseView: View {
                         Button {
                             showTaskOrganizer = true
                         } label: {
-                            Image(systemName: "checklist")
+                            Image(systemName: "target")
                                 .foregroundStyle(Color("AppPrimary"))
                         }
                     }
@@ -58,7 +66,7 @@ struct PlanPhaseView: View {
                         AppBackgroundView()
                         TaskOrganizerView()
                     }
-                    .navigationTitle("Task Library")
+                    .navigationTitle("Outcomes")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .confirmationAction) {
@@ -111,7 +119,7 @@ struct PlanPhaseView: View {
                     Text("Plan → Execute → Review")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(Color("AppAccent"))
-                    Text("Design your week around energy, not just tasks.")
+                    Text("Design your week around Energy Day Map + One Outcome.")
                         .font(.caption)
                         .foregroundStyle(Color("AppTextSecondary"))
                 }
@@ -150,6 +158,7 @@ struct PlanPhaseView: View {
                     value: Binding(
                         get: { Double(store.weeklyPlan.plannedFocusMinutes) },
                         set: {
+                            guard !store.weeklyPlan.commitmentLocked else { return }
                             var plan = store.weeklyPlan
                             plan.plannedFocusMinutes = Int($0)
                             store.updateWeeklyPlan(plan)
@@ -159,6 +168,7 @@ struct PlanPhaseView: View {
                     step: 30
                 )
                 .tint(Color("AppPrimary"))
+                .disabled(store.weeklyPlan.commitmentLocked)
             }
         }
         .padding(.horizontal, 16)
@@ -167,7 +177,7 @@ struct PlanPhaseView: View {
     private var priorityOutcomesCard: some View {
         AppCard {
             VStack(alignment: .leading, spacing: 12) {
-                AppSectionHeader(title: "Top 3 Outcomes", subtitle: "Pick from tasks or type outcomes")
+                AppSectionHeader(title: "Top 3 Outcomes", subtitle: "Weekly outcomes for your commitment")
 
                 outcomeField($outcome1, placeholder: "Outcome 1")
                 outcomeField($outcome2, placeholder: "Outcome 2")
@@ -263,9 +273,10 @@ struct PlanPhaseView: View {
     }
 
     private func savePlan() {
-        var outcomes: [String] = [outcome1, outcome2, outcome3]
+        let outcomes: [String] = [outcome1, outcome2, outcome3]
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
+        guard !store.weeklyPlan.commitmentLocked else { return }
         var plan = store.weeklyPlan
         plan.intention = intentionText.trimmingCharacters(in: .whitespacesAndNewlines)
         plan.priorityOutcomes = outcomes
@@ -275,12 +286,15 @@ struct PlanPhaseView: View {
     private func addCustomBlock() {
         let title = newBlockTitle.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !title.isEmpty else { return }
-        store.addFlowBlock(FlowBlock(
+        let ok = store.addFlowBlock(FlowBlock(
             title: title,
             startHour: newBlockHour,
             durationMinutes: newBlockDuration,
             energyLevel: newBlockEnergy
         ))
+        if !ok {
+            FeedbackService.warning()
+        }
         newBlockTitle = ""
     }
 }

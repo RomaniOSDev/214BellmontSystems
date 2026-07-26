@@ -8,73 +8,73 @@ struct AchievementDefinition: Identifiable {
 
     static let all: [AchievementDefinition] = [
         AchievementDefinition(
-            id: "task_initiator",
-            title: "Task Initiator",
-            description: "Completed your first task",
-            icon: "checkmark.circle.fill"
+            id: "first_weekly_plan",
+            title: "First Weekly Plan",
+            description: "Set your first weekly intention",
+            icon: "calendar.badge.checkmark"
         ),
         AchievementDefinition(
-            id: "focus_enthusiast",
-            title: "Focus Enthusiast",
-            description: "Completed 10 focus sessions",
-            icon: "timer"
+            id: "energy_mapped",
+            title: "Energy Mapped",
+            description: "Completed your first Energy Day Map",
+            icon: "bolt.circle.fill"
         ),
         AchievementDefinition(
-            id: "habit_builder",
-            title: "Habit Builder",
-            description: "Logged your first habit check-in",
-            icon: "leaf.fill"
+            id: "one_outcome",
+            title: "One Outcome Locked",
+            description: "Set a primary daily outcome",
+            icon: "target"
         ),
         AchievementDefinition(
-            id: "consistent_performer",
-            title: "Consistent Performer",
-            description: "Maintained a streak of tracking habits for a week",
-            icon: "flame.fill"
-        ),
-        AchievementDefinition(
-            id: "focused_hour",
-            title: "Focused Hour",
-            description: "Achieved total focus minutes of an hour",
-            icon: "clock.fill"
-        ),
-        AchievementDefinition(
-            id: "task_master",
-            title: "Task Master",
-            description: "Accomplished completion of ten tasks",
-            icon: "star.fill"
-        ),
-        AchievementDefinition(
-            id: "diligent_worker",
-            title: "Diligent Worker",
-            description: "Successfully completed fifty focus sessions",
+            id: "peak_block",
+            title: "Peak Block Completed",
+            description: "Finished a Peak energy Flow Block",
             icon: "bolt.fill"
         ),
         AchievementDefinition(
-            id: "habit_pro",
-            title: "Habit Pro",
-            description: "Reached fifty habit check-ins",
+            id: "momentum_50",
+            title: "Momentum 50",
+            description: "Reached a Momentum Score of 50",
+            icon: "chart.line.uptrend.xyaxis"
+        ),
+        AchievementDefinition(
+            id: "commitment_kept",
+            title: "Commitment Kept",
+            description: "Kept a Weekly Commitment",
+            icon: "checkmark.seal.fill"
+        ),
+        AchievementDefinition(
+            id: "momentum_80",
+            title: "In the Flow",
+            description: "Reached a Momentum Score of 80",
+            icon: "flame.fill"
+        ),
+        AchievementDefinition(
+            id: "flow_streak_7",
+            title: "Flow Streak",
+            description: "Maintained activity for 7 days",
             icon: "crown.fill"
         )
     ]
 
     func isUnlocked(store: AppDataStore) -> Bool {
         switch id {
-        case "task_initiator":
-            return store.tasksCompleted >= 1
-        case "focus_enthusiast":
-            return store.focusSessionsCompleted >= 10
-        case "habit_builder":
-            return store.habitCheckIns >= 1
-        case "consistent_performer":
-            return store.longestStreak >= 7
-        case "focused_hour":
-            return store.totalFocusMinutes >= 60
-        case "task_master":
-            return store.tasksCompleted >= 10
-        case "diligent_worker":
-            return store.focusSessionsCompleted >= 50
-        case "habit_pro":
-            return store.habitCheckIns >= 50
+        case "first_weekly_plan":
+            return !store.weeklyPlan.intention.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        case "energy_mapped":
+            return store.energyDayMap != nil || store.energyMapsCompleted > 0
+        case "one_outcome":
+            return store.dayOutcome?.isSet == true || store.outcomesLocked > 0
+        case "peak_block":
+            return store.peakBlocksCompleted >= 1
+        case "momentum_50":
+            return store.momentumBreakdown.total >= 50 || store.highestMomentum >= 50
+        case "commitment_kept":
+            return store.commitmentStatus == .kept || store.commitmentsKept >= 1
+        case "momentum_80":
+            return store.momentumBreakdown.total >= 80 || store.highestMomentum >= 80
+        case "flow_streak_7":
+            return store.streakDays >= 7 || store.longestStreak >= 7
         default:
             return false
         }

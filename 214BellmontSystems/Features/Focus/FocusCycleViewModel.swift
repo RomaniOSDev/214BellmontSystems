@@ -88,6 +88,10 @@ final class FocusCycleViewModel: ObservableObject {
     }
 
     func start() {
+        guard store.canStartFocus else {
+            FeedbackService.warning()
+            return
+        }
         FeedbackService.mediumAction()
         if phase == .idle {
             beginFocus()

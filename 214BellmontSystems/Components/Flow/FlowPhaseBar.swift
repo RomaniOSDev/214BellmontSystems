@@ -11,7 +11,7 @@ enum FlowPhase: Int, CaseIterable, Identifiable {
         switch self {
         case .plan: return "Plan"
         case .execute: return "Execute"
-        case .review: return "Review"
+        case .review: return "Score"
         }
     }
 

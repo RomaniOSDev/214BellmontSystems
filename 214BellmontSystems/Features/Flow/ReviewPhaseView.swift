@@ -17,7 +17,9 @@ struct ReviewPhaseView: View {
                 ScrollView {
                     VStack(spacing: 20) {
                         reviewHeader
-                        MomentumScoreCard(breakdown: breakdown)
+                        MomentumHeroBanner(breakdown: breakdown)
+                            .padding(.horizontal, 16)
+                        WeeklyCommitmentCard()
                             .padding(.horizontal, 16)
                         weeklyMetrics
                         WeeklyReviewView(embedded: true)
@@ -27,7 +29,7 @@ struct ReviewPhaseView: View {
                     .padding(.bottom, 16)
                 }
             }
-            .navigationTitle("Review Your Flow")
+            .navigationTitle("Review")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -67,7 +69,7 @@ struct ReviewPhaseView: View {
                         AppBackgroundView()
                         AchievementsView()
                     }
-                    .navigationTitle("Achievements")
+                    .navigationTitle("Flow Badges")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .confirmationAction) {
@@ -78,6 +80,9 @@ struct ReviewPhaseView: View {
                     .appToolbarStyle()
                 }
             }
+            .onAppear {
+                store.markCommitmentKeptIfNeeded()
+            }
         }
     }
 
@@ -86,10 +91,10 @@ struct ReviewPhaseView: View {
             HStack(spacing: 14) {
                 AppIconCircle(icon: "chart.line.uptrend.xyaxis", size: 48, iconColor: Color("AppAccent"))
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Flow Review")
+                    Text("Momentum Scorecard")
                         .font(.title3.weight(.bold))
                         .foregroundStyle(Color("AppTextPrimary"))
-                    Text("Measure momentum, then plan again")
+                    Text("Weekly Commitment · Energy · Outcomes")
                         .font(.caption)
                         .foregroundStyle(Color("AppTextSecondary"))
                 }
@@ -101,9 +106,9 @@ struct ReviewPhaseView: View {
     private var weeklyMetrics: some View {
         AppCard {
             AppMetricRow(metrics: [
-                ("\(review.tasksCompleted)", "Tasks"),
+                ("\(review.tasksCompleted)", "Outcomes"),
                 ("\(review.focusMinutes)m", "Focus"),
-                ("\(review.habitCheckIns)", "Habits")
+                ("\(review.habitCheckIns)", "Anchors")
             ])
         }
         .padding(.horizontal, 16)

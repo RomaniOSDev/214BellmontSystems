@@ -39,7 +39,7 @@ struct AddTaskView: View {
 
                 Form {
                     Section {
-                        TextField("Task title", text: $title)
+                        TextField("Outcome title", text: $title)
                             .foregroundStyle(Color("AppTextPrimary"))
                             .shake(trigger: shakeTrigger)
 
@@ -91,7 +91,7 @@ struct AddTaskView: View {
                 }
                 .scrollContentBackground(.hidden)
             }
-            .navigationTitle(existingTask == nil ? "Add Task" : "Edit Task")
+            .navigationTitle(existingTask == nil ? "Add Outcome" : "Edit Outcome")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

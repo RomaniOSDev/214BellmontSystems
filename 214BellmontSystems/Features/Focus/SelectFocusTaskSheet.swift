@@ -28,7 +28,7 @@ struct SelectFocusTaskSheet: View {
                     }
                 }
             }
-            .navigationTitle("Link Task")
+            .navigationTitle("Link Outcome")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

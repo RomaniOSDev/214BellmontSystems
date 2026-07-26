@@ -36,7 +36,7 @@ struct AchievementsView: View {
                     .padding(.vertical, 16)
                 }
             }
-            .navigationTitle("Achievements")
+            .navigationTitle("Flow Badges")
             .navigationBarTitleDisplayMode(.inline)
             .appToolbarStyle()
             .sheet(isPresented: $showWeeklyReview) {

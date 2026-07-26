@@ -39,7 +39,7 @@ struct TaskOrganizerView: View {
                     }
                 }
             }
-            .navigationTitle("Task Organizer")
+            .navigationTitle("Outcomes")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -192,7 +192,7 @@ struct TaskOrganizerView: View {
     private var bottomBar: some View {
         VStack(spacing: 0) {
             Divider().background(Color("AppTextPrimary").opacity(0.1))
-            AppPrimaryButton("Add Task", icon: "plus") {
+            AppPrimaryButton("Add Outcome", icon: "plus") {
                 showAddTask = true
             }
             .padding(.horizontal, 16)

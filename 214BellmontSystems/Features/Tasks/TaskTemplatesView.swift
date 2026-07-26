@@ -38,7 +38,7 @@ struct TaskTemplatesView: View {
                     }
                 }
             }
-            .navigationTitle("Task Templates")
+            .navigationTitle("Flow Templates")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

@@ -16,9 +16,9 @@ struct DailyHabitLogView: View {
                 ScrollView {
                     AppEmptyState(
                         icon: "calendar",
-                        title: "Begin your journey!",
-                        message: "Start Building Your Habits Today! Add your first habit to track consistency.",
-                        actionTitle: "Add Habit"
+                        title: "No anchors yet",
+                        message: "Add daily anchors to reinforce your Weekly Flow.",
+                        actionTitle: "Add Anchor"
                     ) {
                         showAddHabit = true
                     }
@@ -35,7 +35,7 @@ struct DailyHabitLogView: View {
             }
 
             if !store.habits.isEmpty {
-                AppFloatingButton(title: "Add Habit", icon: "plus") {
+                AppFloatingButton(title: "Add Anchor", icon: "plus") {
                     showAddHabit = true
                 }
                 .padding(16)

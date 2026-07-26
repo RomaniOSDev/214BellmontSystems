@@ -30,6 +30,13 @@ final class AppDataStore: ObservableObject {
         static let weeklyPlan = "weeklyPlan"
         static let flowBlocks = "flowBlocks"
         static let nicheTemplatesSeeded = "nicheTemplatesSeeded"
+        static let energyDayMap = "energyDayMap"
+        static let dayOutcome = "dayOutcome"
+        static let energyMapsCompleted = "energyMapsCompleted"
+        static let outcomesLocked = "outcomesLocked"
+        static let peakBlocksCompleted = "peakBlocksCompleted"
+        static let highestMomentum = "highestMomentum"
+        static let commitmentsKept = "commitmentsKept"
     }
 
     private let defaults: UserDefaults
@@ -147,13 +154,41 @@ final class AppDataStore: ObservableObject {
         didSet { save(flowBlocks, forKey: Keys.flowBlocks) }
     }
 
-    static let taskCategories = ["General", "Work", "Personal", "Health", "Learning"]
+    @Published var energyDayMap: EnergyDayMap? {
+        didSet { saveOptional(energyDayMap, forKey: Keys.energyDayMap) }
+    }
+
+    @Published var dayOutcome: DayOutcome? {
+        didSet { saveOptional(dayOutcome, forKey: Keys.dayOutcome) }
+    }
+
+    @Published var energyMapsCompleted: Int {
+        didSet { defaults.set(energyMapsCompleted, forKey: Keys.energyMapsCompleted) }
+    }
+
+    @Published var outcomesLocked: Int {
+        didSet { defaults.set(outcomesLocked, forKey: Keys.outcomesLocked) }
+    }
+
+    @Published var peakBlocksCompleted: Int {
+        didSet { defaults.set(peakBlocksCompleted, forKey: Keys.peakBlocksCompleted) }
+    }
+
+    @Published var highestMomentum: Int {
+        didSet { defaults.set(highestMomentum, forKey: Keys.highestMomentum) }
+    }
+
+    @Published var commitmentsKept: Int {
+        didSet { defaults.set(commitmentsKept, forKey: Keys.commitmentsKept) }
+    }
+
+    static let taskCategories = ["Outcomes", "Deep Work", "Delivery", "Admin", "Learning"]
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         hasSeenOnboarding = defaults.bool(forKey: Keys.hasSeenOnboarding)
         tasks = Self.load([TaskItem].self, from: defaults, key: Keys.tasks) ?? []
-        defaultCategory = defaults.string(forKey: Keys.defaultCategory) ?? "General"
+        defaultCategory = defaults.string(forKey: Keys.defaultCategory) ?? "Outcomes"
         habits = Self.load([Habit].self, from: defaults, key: Keys.habits) ?? []
         let dateInterval = defaults.double(forKey: Keys.selectedDate)
         selectedDate = dateInterval > 0 ? Date(timeIntervalSince1970: dateInterval) : Date()
@@ -182,10 +217,18 @@ final class AppDataStore: ObservableObject {
         weeklyPlan = Self.load(WeeklyPlan.self, from: defaults, key: Keys.weeklyPlan)
             ?? WeeklyPlan()
         flowBlocks = Self.load([FlowBlock].self, from: defaults, key: Keys.flowBlocks) ?? []
+        energyDayMap = Self.load(EnergyDayMap.self, from: defaults, key: Keys.energyDayMap)
+        dayOutcome = Self.load(DayOutcome.self, from: defaults, key: Keys.dayOutcome)
+        energyMapsCompleted = defaults.integer(forKey: Keys.energyMapsCompleted)
+        outcomesLocked = defaults.integer(forKey: Keys.outcomesLocked)
+        peakBlocksCompleted = defaults.integer(forKey: Keys.peakBlocksCompleted)
+        highestMomentum = defaults.integer(forKey: Keys.highestMomentum)
+        commitmentsKept = defaults.integer(forKey: Keys.commitmentsKept)
         seedTemplatesIfNeeded()
         migrateNicheTemplatesIfNeeded()
         migrateHabitDatesIfNeeded()
         refreshHabitsForToday()
+        refreshDailyStateIfNeeded()
     }
 
     private func migrateHabitDatesIfNeeded() {
@@ -330,16 +373,77 @@ final class AppDataStore: ObservableObject {
     func refreshWeeklyPlanIfNeeded() {
         if !weeklyPlan.isCurrentWeek {
             weeklyPlan = WeeklyPlan(
-                intention: weeklyPlan.intention,
-                priorityOutcomes: weeklyPlan.priorityOutcomes,
+                intention: "",
+                priorityOutcomes: [],
                 plannedFocusMinutes: weeklyPlan.plannedFocusMinutes
             )
+        }
+    }
+
+    func refreshDailyStateIfNeeded() {
+        if let map = energyDayMap, !map.isToday {
+            energyDayMap = nil
+        }
+        if let outcome = dayOutcome, !outcome.isToday {
+            dayOutcome = nil
         }
     }
 
     func updateWeeklyPlan(_ plan: WeeklyPlan) {
         weeklyPlan = plan
         recordActivity()
+        bumpHighestMomentum()
+    }
+
+    func lockWeeklyCommitment() {
+        var plan = weeklyPlan
+        let outcomes = plan.priorityOutcomes
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        guard !plan.intention.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              !outcomes.isEmpty else { return }
+        plan.priorityOutcomes = Array(outcomes.prefix(3))
+        plan.committedFocusMinutes = plan.plannedFocusMinutes
+        plan.commitmentLocked = true
+        plan.commitmentLockedAt = Date()
+        weeklyPlan = plan
+        recordActivity()
+        bumpHighestMomentum()
+    }
+
+    var commitmentStatus: CommitmentStatus {
+        guard weeklyPlan.commitmentLocked else { return .notCommitted }
+        let review = weeklyReview()
+        let target = weeklyPlan.committedFocusMinutes ?? weeklyPlan.plannedFocusMinutes
+        let outcomesTarget = max(weeklyPlan.priorityOutcomes.filter { !$0.isEmpty }.count, 1)
+        let completedPriorities = tasks.filter { $0.isWeeklyPriority && $0.completed }.count
+        let outcomeProgress = max(completedPriorities, min(review.tasksCompleted, outcomesTarget))
+
+        let focusMet = review.focusMinutes >= target
+        let outcomesMet = outcomeProgress >= min(outcomesTarget, 1)
+
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: Date())
+        let isWeekendReview = weekday == 1 || weekday == 7
+
+        if focusMet && (outcomesMet || review.tasksCompleted >= 1) {
+            return .kept
+        }
+        if isWeekendReview {
+            return .missed
+        }
+        return .inProgress
+    }
+
+    func markCommitmentKeptIfNeeded() {
+        if commitmentStatus == .kept, commitmentsKept == 0 || weeklyPlan.commitmentLocked {
+            // Count once per locked week via highest watermark check
+            let key = "commitmentCounted_\(Int(weeklyPlan.weekStart.timeIntervalSince1970))"
+            if !defaults.bool(forKey: key) {
+                commitmentsKept += 1
+                defaults.set(true, forKey: key)
+            }
+        }
     }
 
     func toggleWeeklyPriority(taskId: UUID) {
@@ -351,6 +455,77 @@ final class AppDataStore: ObservableObject {
 
     var weeklyPriorityTasks: [TaskItem] {
         tasks.filter { $0.isWeeklyPriority && !$0.completed }
+    }
+
+    // MARK: - Energy Day Map
+
+    var hasEnergyMapToday: Bool {
+        energyDayMap?.isToday == true
+    }
+
+    var hasPrimaryOutcomeToday: Bool {
+        dayOutcome?.isToday == true && dayOutcome?.isSet == true
+    }
+
+    /// Focus timer requires Energy Day Map + One Outcome.
+    var canStartFocus: Bool {
+        hasEnergyMapToday && hasPrimaryOutcomeToday
+    }
+
+    var focusGateMessage: String {
+        if !hasEnergyMapToday && !hasPrimaryOutcomeToday {
+            return "Set your Energy Day Map and One Outcome before starting focus."
+        }
+        if !hasEnergyMapToday {
+            return "Complete your Energy Day Map to unlock focus."
+        }
+        return "Lock One Outcome for today to unlock focus."
+    }
+
+    func applyEnergyDayMap(_ energy: EnergyLevel, replaceBlocks: Bool = true) {
+        let map = EnergyDayMap(dayEnergy: energy)
+        energyDayMap = map
+        energyMapsCompleted += 1
+
+        if replaceBlocks {
+            let today = Calendar.current.startOfDay(for: Date())
+            flowBlocks.removeAll { Calendar.current.isDate($0.scheduledDay, inSameDayAs: today) }
+            flowBlocks.append(contentsOf: map.suggestedBlocks(for: today))
+        }
+        recordActivity()
+        bumpHighestMomentum()
+    }
+
+    func setPrimaryOutcome(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        let wasUnset = !(dayOutcome?.isSet ?? false)
+        dayOutcome = DayOutcome(primaryOutcome: trimmed)
+        if wasUnset {
+            outcomesLocked += 1
+        }
+        recordActivity()
+        bumpHighestMomentum()
+    }
+
+    func togglePrimaryOutcomeCompleted() {
+        guard var outcome = dayOutcome, outcome.isSet else { return }
+        outcome.isCompleted.toggle()
+        dayOutcome = outcome
+        recordActivity()
+    }
+
+    func canLink(taskEnergy: EnergyLevel, to block: FlowBlock) -> Bool {
+        EnergyDayMap.allows(taskEnergy: taskEnergy, in: block.energyLevel)
+    }
+
+    func linkTask(_ taskId: UUID, toBlock blockId: UUID) -> Bool {
+        guard let task = tasks.first(where: { $0.id == taskId }),
+              let index = flowBlocks.firstIndex(where: { $0.id == blockId }) else { return false }
+        guard canLink(taskEnergy: task.energyLevel, to: flowBlocks[index]) else { return false }
+        flowBlocks[index].linkedTaskId = taskId
+        flowBlocks[index].title = task.title
+        return true
     }
 
     // MARK: - Flow Blocks
@@ -366,22 +541,45 @@ final class AppDataStore: ObservableObject {
             }
     }
 
-    func addFlowBlock(_ block: FlowBlock) {
+    func addFlowBlock(_ block: FlowBlock) -> Bool {
+        // Peak tasks / Peak blocks rule when linking later; block itself must match day map if set
+        if let map = energyDayMap, map.isToday {
+            if block.energyLevel == .peak && map.dayEnergy == .low {
+                return false
+            }
+        }
         flowBlocks.append(block)
         recordActivity()
+        return true
     }
 
     func applyGuidedRoutine(_ routine: GuidedRoutine, for day: Date = Date()) {
-        let blocks = routine.makeFlowBlocks(for: day)
+        var blocks = routine.makeFlowBlocks(for: day)
+        if let map = energyDayMap, map.isToday {
+            blocks = blocks.filter { EnergyDayMap.allows(taskEnergy: $0.energyLevel, in: map.dayEnergy) || $0.energyLevel != .peak || map.dayEnergy != .low }
+            // On low days, convert peak steps to steady
+            if map.dayEnergy == .low {
+                blocks = blocks.map { block in
+                    var b = block
+                    if b.energyLevel == .peak { b.energyLevel = .steady }
+                    return b
+                }
+            }
+        }
         flowBlocks.append(contentsOf: blocks)
         recordActivity()
     }
 
     func toggleFlowBlockCompletion(id: UUID) {
         guard let index = flowBlocks.firstIndex(where: { $0.id == id }) else { return }
+        let wasCompleted = flowBlocks[index].isCompleted
         flowBlocks[index].isCompleted.toggle()
-        if flowBlocks[index].isCompleted {
+        if flowBlocks[index].isCompleted && !wasCompleted {
+            if flowBlocks[index].energyLevel == .peak {
+                peakBlocksCompleted += 1
+            }
             recordActivity()
+            bumpHighestMomentum()
         }
     }
 
@@ -391,6 +589,14 @@ final class AppDataStore: ObservableObject {
 
     var momentumBreakdown: MomentumBreakdown {
         MomentumCalculator.breakdown(for: self)
+    }
+
+    private func bumpHighestMomentum() {
+        let score = momentumBreakdown.total
+        if score > highestMomentum {
+            highestMomentum = score
+        }
+        markCommitmentKeptIfNeeded()
     }
 
     var todaysFlowProgress: Double {
@@ -599,7 +805,7 @@ final class AppDataStore: ObservableObject {
 
         hasSeenOnboarding = false
         tasks = []
-        defaultCategory = "General"
+        defaultCategory = "Outcomes"
         habits = []
         selectedDate = Date()
         notificationsEnabled = false
@@ -621,6 +827,13 @@ final class AppDataStore: ObservableObject {
         selectedFocusTaskId = nil
         weeklyPlan = WeeklyPlan()
         flowBlocks = []
+        energyDayMap = nil
+        dayOutcome = nil
+        energyMapsCompleted = 0
+        outcomesLocked = 0
+        peakBlocksCompleted = 0
+        highestMomentum = 0
+        commitmentsKept = 0
         defaults.set(false, forKey: Keys.templatesSeeded)
         defaults.set(false, forKey: Keys.nicheTemplatesSeeded)
         seedTemplatesIfNeeded()
@@ -630,6 +843,14 @@ final class AppDataStore: ObservableObject {
     private func save<T: Encodable>(_ value: T, forKey key: String) {
         guard let data = try? encoder.encode(value) else { return }
         defaults.set(data, forKey: key)
+    }
+
+    private func saveOptional<T: Encodable>(_ value: T?, forKey key: String) {
+        guard let value else {
+            defaults.removeObject(forKey: key)
+            return
+        }
+        save(value, forKey: key)
     }
 
     private static func load<T: Decodable>(_ type: T.Type, from defaults: UserDefaults, key: String) -> T? {

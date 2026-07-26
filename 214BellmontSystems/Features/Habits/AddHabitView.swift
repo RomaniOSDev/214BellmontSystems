@@ -37,7 +37,7 @@ struct AddHabitView: View {
                 }
                 .scrollContentBackground(.hidden)
             }
-            .navigationTitle(existingHabit == nil ? "Add Habit" : "Edit Habit")
+            .navigationTitle(existingHabit == nil ? "Add Anchor" : "Edit Anchor")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
