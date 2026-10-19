@@ -91,6 +91,7 @@
 		A214B00BB2C3D4E5F607180B /* PushNotificationURLRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A214L00BB2C3D4E5F607180B /* PushNotificationURLRouter.swift */; };
 		A214B00CB2C3D4E5F607180C /* UserAgentBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A214L00CB2C3D4E5F607180C /* UserAgentBuilder.swift */; };
 		A214B00DB2C3D4E5F607180D /* WebviewVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A214L00DB2C3D4E5F607180D /* WebviewVC.swift */; };
+		A214B00EB2C3D4E5F607180E /* NotificationInteractionCallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = A214L00EB2C3D4E5F607180E /* NotificationInteractionCallback.swift */; };
 		A214B00FB2C3D4E5F607180F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A214L00FB2C3D4E5F607180F /* GoogleService-Info.plist */; };
 		A214B011B2C3D4E5F6071811 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = A214P003B2C3D4E5F6071A03 /* FirebaseMessaging */; };
 		A214B012B2C3D4E5F6071812 /* AppsFlyerLib-Static in Frameworks */ = {isa = PBXBuildFile; productRef = A214P004B2C3D4E5F6071A04 /* AppsFlyerLib-Static */; };
@@ -199,7 +200,6 @@
 		30E65FEF3015F3CD009CFEAE /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		583D8C380C0F5671DF096A98 /* Pods-214BellmontSystems.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-214BellmontSystems.debug.xcconfig"; path = "Target Support Files/Pods-214BellmontSystems/Pods-214BellmontSystems.debug.xcconfig"; sourceTree = "<group>"; };
 		9BC50A40D8128A6351B196F6 /* Pods-214BellmontSystems.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-214BellmontSystems.release.xcconfig"; path = "Target Support Files/Pods-214BellmontSystems/Pods-214BellmontSystems.release.xcconfig"; sourceTree = "<group>"; };
-		B84D18E394D5F4F6C81C4BF8 /* Pods_214BellmontSystems.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_214BellmontSystems.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A214L001B2C3D4E5F6071801 /* AppsFlyerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerManager.swift; sourceTree = "<group>"; };
 		A214L002B2C3D4E5F6071802 /* ConfigManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigManager.swift; sourceTree = "<group>"; };
 		A214L003B2C3D4E5F6071803 /* LoadingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingManager.swift; sourceTree = "<group>"; };
@@ -213,11 +213,13 @@
 		A214L00BB2C3D4E5F607180B /* PushNotificationURLRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationURLRouter.swift; sourceTree = "<group>"; };
 		A214L00CB2C3D4E5F607180C /* UserAgentBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAgentBuilder.swift; sourceTree = "<group>"; };
 		A214L00DB2C3D4E5F607180D /* WebviewVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebviewVC.swift; sourceTree = "<group>"; };
+		A214L00EB2C3D4E5F607180E /* NotificationInteractionCallback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationInteractionCallback.swift; sourceTree = "<group>"; };
 		A214L00FB2C3D4E5F607180F /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A214L010B2C3D4E5F6071810 /* 214BellmontSystems.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = 214BellmontSystems.entitlements; sourceTree = "<group>"; };
 		A214N001B2C3D4E5F6071901 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		A214N002B2C3D4E5F6071902 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A214N003B2C3D4E5F6071903 /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B84D18E394D5F4F6C81C4BF8 /* Pods_214BellmontSystems.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_214BellmontSystems.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -549,6 +551,7 @@
 				A214L008B2C3D4E5F6071808 /* NotificationPermissionManager.swift */,
 				A214L009B2C3D4E5F6071809 /* NotificationPermissionView.swift */,
 				A214L00AB2C3D4E5F607180A /* NotificationPermissionViewController.swift */,
+				A214L00EB2C3D4E5F607180E /* NotificationInteractionCallback.swift */,
 				A214L00BB2C3D4E5F607180B /* PushNotificationURLRouter.swift */,
 				A214L00CB2C3D4E5F607180C /* UserAgentBuilder.swift */,
 				A214L00DB2C3D4E5F607180D /* WebviewVC.swift */,
@@ -598,7 +601,6 @@
 			buildPhases = (
 				A214N009B2C3D4E5F6071909 /* Sources */,
 				A214N00AB2C3D4E5F607190A /* Frameworks */,
-				A214N00BB2C3D4E5F607190B /* Resources */,
 			);
 			buildRules = (
 			);
@@ -775,6 +777,7 @@
 				A214B008B2C3D4E5F6071808 /* NotificationPermissionManager.swift in Sources */,
 				A214B009B2C3D4E5F6071809 /* NotificationPermissionView.swift in Sources */,
 				A214B00AB2C3D4E5F607180A /* NotificationPermissionViewController.swift in Sources */,
+				A214B00EB2C3D4E5F607180E /* NotificationInteractionCallback.swift in Sources */,
 				A214B00BB2C3D4E5F607180B /* PushNotificationURLRouter.swift in Sources */,
 				A214B00CB2C3D4E5F607180C /* UserAgentBuilder.swift in Sources */,
 				A214B00DB2C3D4E5F607180D /* WebviewVC.swift in Sources */,
@@ -834,6 +837,9 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Weekly Flow";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				INFOPLIST_KEY_NSCameraUsageDescription = "We use the camera to let you capture photos and videos inside web content.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We use the microphone to record audio for camera and web content.";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "We use this data to measure ad campaigns and improve your experience in the app.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -845,7 +851,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = "2,0";
 				PRODUCT_BUNDLE_IDENTIFIER = com.bra.b3llm0nts7st3ms;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -876,6 +882,9 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Weekly Flow";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				INFOPLIST_KEY_NSCameraUsageDescription = "We use the camera to let you capture photos and videos inside web content.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We use the microphone to record audio for camera and web content.";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "We use this data to measure ad campaigns and improve your experience in the app.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -887,7 +896,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = "2,0";
 				PRODUCT_BUNDLE_IDENTIFIER = com.bra.b3llm0nts7st3ms;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -1023,7 +1032,6 @@
 			};
 			name = Release;
 		};
-
 		A214N00CB2C3D4E5F607190C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1038,7 +1046,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = "2,0";
 				PRODUCT_BUNDLE_IDENTIFIER = com.bra.b3llm0nts7st3ms.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1065,7 +1073,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = "2,0";
 				PRODUCT_BUNDLE_IDENTIFIER = com.bra.b3llm0nts7st3ms.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
